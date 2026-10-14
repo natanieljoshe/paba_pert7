@@ -99,12 +99,12 @@ class TrackerService : Service(), SensorEventListener {
             .build()
     }
 
-    override fun onSensorChanged(event: SensorEvent){
-        if (event?.sensor?.type == Sensor.TYPE_ACCELEROMETER){
+    override fun onSensorChanged(event: SensorEvent?) {
+        if (event?.sensor?.type == Sensor.TYPE_ACCELEROMETER) {
             val y = event.values[1]
             val jumpThreshold = 15.0
 
-            if(abs(y)>jumpThreshold){
+            if (abs(y) > jumpThreshold) {
                 Log.d("TrackerService", "LOMPATAN Terdeteksi! y: $y")
                 sensorManager.unregisterListener(this)
 
@@ -154,18 +154,10 @@ class TrackerService : Service(), SensorEventListener {
         Log.d("TrackerService", "Service onDestroy")
     }
 
-    override fun onBind(p0: Intent?): IBinder?{
+    override fun onBind(intent: Intent?): IBinder? {
         return null
     }
 
-    override fun onBind(intent: Intent): IBinder {
-        TODO("Return the communication channel to the service.")
-    }
-
-    override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
-    }
-
-    override fun onSensorChanged(p0: SensorEvent?) {
-        TODO("Not yet implemented")
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
     }
 }
