@@ -79,7 +79,7 @@ class MainActivity : AppCompatActivity() {
     private fun startMemulaiLatihanService() {
         val serviceIntent = Intent(this, MemulaiLatihanService::class.java)
         ContextCompat.startForegroundService(this, serviceIntent)
-        jumlahJumpText.text = "Memulai latihan..."
+        statusTextView.text = "Service Latihan sedang berjalan. Berjalanlah lebih dari 2 langkah..."
     }
 
     override fun onRequestPermissionsResult(
@@ -98,6 +98,8 @@ class MainActivity : AppCompatActivity() {
             }
             if (allPermissionsGranted) {
                 startMemulaiLatihanService()
+            } else {
+                statusTextView.text = "Izin ditolak, service tidak dapat dijalankan"
             }
         }
     }
@@ -124,6 +126,7 @@ class MainActivity : AppCompatActivity() {
             val steps = intent.getIntExtra(EXTRA_STEP_COUNT, 0)
             val jumps = intent.getIntExtra(EXTRA_JUMP_COUNT, 0)
 
+            statusTextView.text = "Latihan Selesai! (Langkah: $steps)"
             jumlahJumpText.text = "Jumlah jump: $jumps"
 
             createCalendarEvent(steps, jumps)
