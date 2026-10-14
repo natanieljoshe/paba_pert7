@@ -33,7 +33,9 @@
         <service
             android:name=".TrackerService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true"
+            android:foregroundServiceType="location"
+            />
     </application>
 
 </manifest>

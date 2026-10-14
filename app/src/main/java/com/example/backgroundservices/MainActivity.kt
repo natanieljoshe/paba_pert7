@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
                 )
             }
         }
-
+        handleIntent(intent)
     }
 
     private fun hasAllPermissions():Boolean{
