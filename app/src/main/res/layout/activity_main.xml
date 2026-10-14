@@ -34,6 +34,16 @@
             android:layout_gravity="center_vertical"
             />
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/jumlahJumpText"
+            android:text="Jumlah jump: "
+            android:gravity="center"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="center_vertical"
+            />
+
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

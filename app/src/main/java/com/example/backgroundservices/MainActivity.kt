@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.CalendarContract
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -17,6 +18,7 @@ import androidx.core.view.WindowInsetsCompat
 class MainActivity : AppCompatActivity() {
 
     private lateinit var statusTextView: TextView
+    private lateinit var jumlahJumpText: TextView
     private lateinit var btnStart: Button
     private lateinit var btnMulaiLatihan: Button
 
@@ -31,6 +33,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         statusTextView = findViewById(R.id.statusTextView)
+        jumlahJumpText = findViewById(R.id.jumlahJumpText)
         btnStart = findViewById(R.id.btnStart)
         btnMulaiLatihan = findViewById(R.id.btnMulaiLatihan)
 
@@ -76,7 +79,7 @@ class MainActivity : AppCompatActivity() {
     private fun startMemulaiLatihanService() {
         val serviceIntent = Intent(this, MemulaiLatihanService::class.java)
         ContextCompat.startForegroundService(this, serviceIntent)
-        statusTextView.text = "Service Latihan sedang berjalan. Berjalanlah lebih dari 2 langkah..."
+        jumlahJumpText.text = "Memulai latihan..."
     }
 
     override fun onRequestPermissionsResult(
@@ -95,8 +98,6 @@ class MainActivity : AppCompatActivity() {
             }
             if (allPermissionsGranted) {
                 startMemulaiLatihanService()
-            } else {
-                statusTextView.text = "Izin ditolak, service tidak dapat dijalankan"
             }
         }
     }
@@ -121,7 +122,29 @@ class MainActivity : AppCompatActivity() {
             statusTextView.text = "Background services sudah berhenti karena Anda melompat"
         } else if (intent?.action == ACTION_LATIHAN_SELESAI) {
             val steps = intent.getIntExtra(EXTRA_STEP_COUNT, 0)
-            statusTextView.text = "Latihan Selesai! Anda telah berjalan $steps langkah."
+            val jumps = intent.getIntExtra(EXTRA_JUMP_COUNT, 0)
+
+            jumlahJumpText.text = "Jumlah jump: $jumps"
+
+            createCalendarEvent(steps, jumps)
+        }
+    }
+
+    private fun createCalendarEvent(steps: Int, jumps: Int) {
+        val calendarIntent = Intent(Intent.ACTION_INSERT).apply {
+            data = CalendarContract.Events.CONTENT_URI
+            putExtra(CalendarContract.Events.TITLE, "Latihan Hari Ini")
+            putExtra(
+                CalendarContract.Events.DESCRIPTION,
+                "Latihan Selesai! Total Langkah: $steps, Total Lompatan: $jumps"
+            )
+            putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, System.currentTimeMillis())
+            putExtra(CalendarContract.EXTRA_EVENT_END_TIME, System.currentTimeMillis() + (30 * 60 * 1000))
+        }
+        try {
+            startActivity(calendarIntent)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -135,6 +158,7 @@ class MainActivity : AppCompatActivity() {
         const val ACTION_SERVICE_STOPPED_JUMP = "com.example.backgroundservices.ACTION_SERVICE_STOPPED_JUMP"
         const val ACTION_LATIHAN_SELESAI = "com.example.backgroundservices.ACTION_LATIHAN_SELESAI"
         const val EXTRA_STEP_COUNT = "extra_step_count"
+        const val EXTRA_JUMP_COUNT = "extra_jump_count"
         const val REQUEST_CODE_PERMISSIONS = 101
     }
 }
