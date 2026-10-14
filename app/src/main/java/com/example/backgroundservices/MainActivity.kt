@@ -18,6 +18,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var statusTextView: TextView
     private lateinit var btnStart: Button
+    private lateinit var btnMulaiLatihan: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,9 +32,10 @@ class MainActivity : AppCompatActivity() {
 
         statusTextView = findViewById(R.id.statusTextView)
         btnStart = findViewById(R.id.btnStart)
+        btnMulaiLatihan = findViewById(R.id.btnMulaiLatihan)
 
-        btnStart.setOnClickListener{
-            if(hasAllPermissions()){
+        btnStart.setOnClickListener {
+            if (hasAllPermissions()) {
                 startTrackerService()
             } else {
                 ActivityCompat.requestPermissions(
@@ -43,19 +45,38 @@ class MainActivity : AppCompatActivity() {
                 )
             }
         }
+
+        btnMulaiLatihan.setOnClickListener {
+            if (hasAllPermissions()) {
+                startMemulaiLatihanService()
+            } else {
+                ActivityCompat.requestPermissions(
+                    this,
+                    permissionsToRequest,
+                    REQUEST_CODE_PERMISSIONS
+                )
+            }
+        }
+
         handleIntent(intent)
     }
 
-    private fun hasAllPermissions():Boolean{
+    private fun hasAllPermissions(): Boolean {
         return permissionsToRequest.all {
-            ContextCompat.checkSelfPermission(this,it)==PackageManager.PERMISSION_GRANTED
+            ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
         }
     }
 
-    private fun startTrackerService(){
+    private fun startTrackerService() {
         val serviceIntent = Intent(this, TrackerService::class.java)
         ContextCompat.startForegroundService(this, serviceIntent)
         statusTextView.text = "Background service sedang berjalan..."
+    }
+
+    private fun startMemulaiLatihanService() {
+        val serviceIntent = Intent(this, MemulaiLatihanService::class.java)
+        ContextCompat.startForegroundService(this, serviceIntent)
+        statusTextView.text = "Service Latihan sedang berjalan. Berjalanlah lebih dari 2 langkah..."
     }
 
     override fun onRequestPermissionsResult(
@@ -66,17 +87,15 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             var allPermissionsGranted = true
-            for (result in grantResults){
-                if(result != PackageManager.PERMISSION_GRANTED){
+            for (result in grantResults) {
+                if (result != PackageManager.PERMISSION_GRANTED) {
                     allPermissionsGranted = false
                     break
                 }
             }
-            if(allPermissionsGranted){
-                val serviceIntent = Intent(this,TrackerService::class.java)
-                startForegroundService(serviceIntent)
-                finish()
-            }else{
+            if (allPermissionsGranted) {
+                startMemulaiLatihanService()
+            } else {
                 statusTextView.text = "Izin ditolak, service tidak dapat dijalankan"
             }
         }
@@ -97,9 +116,12 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    private fun handleIntent(intent:Intent?){
-        if (intent?.action == ACTION_SERVICE_STOPPED_JUMP){
+    private fun handleIntent(intent: Intent?) {
+        if (intent?.action == ACTION_SERVICE_STOPPED_JUMP) {
             statusTextView.text = "Background services sudah berhenti karena Anda melompat"
+        } else if (intent?.action == ACTION_LATIHAN_SELESAI) {
+            val steps = intent.getIntExtra(EXTRA_STEP_COUNT, 0)
+            statusTextView.text = "Latihan Selesai! Anda telah berjalan $steps langkah."
         }
     }
 
@@ -111,6 +133,8 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val ACTION_SERVICE_STOPPED_JUMP = "com.example.backgroundservices.ACTION_SERVICE_STOPPED_JUMP"
+        const val ACTION_LATIHAN_SELESAI = "com.example.backgroundservices.ACTION_LATIHAN_SELESAI"
+        const val EXTRA_STEP_COUNT = "extra_step_count"
         const val REQUEST_CODE_PERMISSIONS = 101
     }
 }

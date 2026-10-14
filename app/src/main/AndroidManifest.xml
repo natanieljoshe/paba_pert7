@@ -34,8 +34,12 @@
             android:name=".TrackerService"
             android:enabled="true"
             android:exported="true"
-            android:foregroundServiceType="location"
-            />
+            android:foregroundServiceType="location" />
+        <service
+            android:name=".MemulaiLatihanService"
+            android:enabled="true"
+            android:exported="true"
+            android:foregroundServiceType="location" />
     </application>
 
 </manifest>
